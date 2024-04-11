@@ -165,4 +165,5 @@ qrcode.png
 device.json
 sig.bin
 
-.DS_Store
+
+**/.DS_Store
