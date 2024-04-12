@@ -11,6 +11,7 @@ pip install git+https://github.com/kumoSleeping/lagrange-python
 ## 2.第一次启动
 
 ```shell
+cd lgr-tsugu-py
 python bot
 # python3 bot
 ```
