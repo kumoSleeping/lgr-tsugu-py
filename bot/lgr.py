@@ -11,7 +11,7 @@ from lagrange.info.device import DeviceInfo
 from lagrange.info.sig import SigInfo
 from lagrange.utils.sign import sign_provider
 
-from .feat import msg_handler  # 放在 feat 中
+from feat import msg_handler  # 放在 feat 中
 
 DEVICE_INFO_PATH = "./device.json"
 SIGINFO_PATH = "./sig.bin"

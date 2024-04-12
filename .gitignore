@@ -167,3 +167,12 @@ sig.bin
 
 
 **/.DS_Store
+**/device.json
+**/sig.bin
+**/config.ini
+**/qrcode.png
+**/build/
+**/dist/
+tsugu_config.json
+tsugu_database.db
+**/.idea/

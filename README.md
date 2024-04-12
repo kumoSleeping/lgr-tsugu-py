@@ -11,8 +11,8 @@ pip install git+https://github.com/kumoSleeping/lagrange-python
 ## 2.第一次启动
 
 ```shell
-python -m bot
-# python3 -m bot
+python bot
+# python3 bot
 ```
 
 ## 3.配置文件
@@ -23,10 +23,12 @@ python -m bot
 [DEFAULT]
 lagrange_uin = 0
 lagrange_sign_url = http://127.0.0.1:7140/sign
+use_local_database = False
 ```
 
 - `lagrange_uin`：是机器人的 QQ 号
 - `lagrange_sign_url`：是 lagrange 的签名地址
+- `use_local_database`：是否使用本地数据库，如果为 `True`，则会在当前目录下生成 `database.db` 数据库文件
 
 如有疑问可以加入 BanGDream 相关开发群 666808414 友好交流，如果您不知道什么是 BanGDream，仔细考虑您是否要加群。
 
@@ -34,10 +36,8 @@ lagrange_sign_url = http://127.0.0.1:7140/sign
 ## 4.再次运行
 
 ```shell
-python -m bot
+python bot
 # python3 -m bot
-
-# hupper -m bot  # 监听改变重启，需要安装 hupper
 ```
 
 ## More

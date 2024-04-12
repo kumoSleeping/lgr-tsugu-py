@@ -1,6 +1,8 @@
 from io import BytesIO
 import base64
 import asyncio
+import configparser
+import os
 
 from lagrange.client.client import Client
 from lagrange.client.events.group import GroupMessage
@@ -8,8 +10,21 @@ from lagrange.client.message.elems import At, Raw, Text
 
 import tsugu
 
-# 配置后端地址
-# tsugu.config.backend = 'http://127.0.0.1:3000'
+if os.path.exists('config.ini'):
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    use_local_database = config['DEFAULT']['use_local_database']
+else:
+    use_local_database = 'False'
+
+if not os.path.exists('tsugu_config.json'):
+    tsugu.config.output_config_json('tsugu_config.json')
+
+if use_local_database == 'True':
+    print('Using local database', use_local_database)
+    tsugu.database('tsugu_database.db')
+    
+tsugu.config.reload_from_json('tsugu_config.json')
 
 
 async def msg_handler(client: Client, event: GroupMessage):
