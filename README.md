@@ -15,17 +15,17 @@
 
 ## 1.⚙️准备程序
 
-> 任选下方的一种方式
+任选下方的一种方式。
 
-**Windows exe 程序**
+### Windows exe 程序
 
 Windows 用户可以下载 Release 中的 0.0.2-windows-amd-64.exe 文件，双击运行即可。
 
 然后直接跳到 [2.配置文件](#2.配置文件) 继续阅读。
 
-**Python 构建**
+### Python 构建
 
-> python 版本推荐 3.10+
+python 版本推荐 3.10+
 
 ```shell
 git clone git@github.com:kumoSleeping/lgr-tsugu-py.git
@@ -90,9 +90,7 @@ use_local_database = False
 > 如有疑问可以加入 BanGDream 相关开发群 666808414 友好交流，如果您不知道什么是 BanGDream，仔细考虑您是否要加群。
 
 
-## 📖更多知识
-
-> 依赖
+## 📖项目依赖
 
 ### [lagrange-python](https://github.com/LagrangeDev/lagrange-python)    
 
