@@ -4,6 +4,7 @@ import os
 
 from lagrange.client.client import Client
 from lagrange.client.events.group import GroupMessage
+from lagrange.client.events.friend import FriendMessage
 from lagrange.client.events.service import ServerKick
 from lagrange.client.message.elems import At, Raw, Text
 from lagrange.info.app import app_list
@@ -11,7 +12,7 @@ from lagrange.info.device import DeviceInfo
 from lagrange.info.sig import SigInfo
 from lagrange.utils.sign import sign_provider
 
-from feat import msg_handler  # 放在 feat 中
+from feat import handle_friend_message, handle_group_message
 
 DEVICE_INFO_PATH = "./device.json"
 SIGINFO_PATH = "./sig.bin"
@@ -97,8 +98,9 @@ async def main():
             sign_provider(sign_url) if sign_url else None,
         )
         # client.events.subscribe(GroupMessage, receive_message_miao)  # 注册接收消息的函数
-        client.events.subscribe(GroupMessage, msg_handler)
+        client.events.subscribe(GroupMessage, handle_group_message)
         client.events.subscribe(ServerKick, handle_kick)
+        client.events.subscribe(FriendMessage, handle_friend_message)
         
         client.connect()
         asyncio.create_task(heartbeat_task(client))

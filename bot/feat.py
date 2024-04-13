@@ -6,6 +6,7 @@ import os
 
 from lagrange.client.client import Client
 from lagrange.client.events.group import GroupMessage
+from lagrange.client.events.friend import FriendMessage
 from lagrange.client.message.elems import At, Raw, Text
 
 import tsugu
@@ -26,45 +27,52 @@ if use_local_database == 'True':
     
 tsugu.config.reload_from_json('tsugu_config.json')
 
+import asyncio
+import base64
+from io import BytesIO
 
-async def msg_handler(client: Client, event: GroupMessage):
+
+async def handle_friend_message(client: Client, event: FriendMessage):
     print(event)
-    if event.msg.startswith("tsugu可爱"):
-        p = await client.send_grp_msg([Text("(๑>ᴗ<๑) ")], event.grp_id)
-        await asyncio.sleep(5)
-        # 撤回
-        await client.recall_grp_msg(event.grp_id, p)
-    # elif event.msg.startswith("imgs"):
-    #     await client.send_grp_msg(
-    #         [
-    #             await client.upload_grp_image(
-    #                 open("98416427_p0.jpg", "rb"), event.grp_id
-    #             )
-    #         ],
-    #         event.grp_id,
-    #     )
-    # print(f"{event.nickname}({event.grp_name}): {event.msg}")
-    
     loop = asyncio.get_running_loop()
-    # 默认使用 ThreadPoolExecutor，None 表示使用默认的 Executor
-    result = await loop.run_in_executor(None, tsugu.bot, event.msg, event.uin, 'red', event.grp_id)
-    rpl = result
-    if not result:
-        pass
-    else:
-        modified_results_grp_msg = []
-        for item in rpl:
-            if item['type'] == 'string':
-                # 处理字符串类型的结果，可能是文本消息
-                text_message = item['string']
-                modified_results_grp_msg.append(Text(text_message))
-            elif item['type'] == 'base64':
-                # 处理Base64编码的图像数据
-                base64_data = item['string']
-                # 转化成bytes
-                img_bytes = base64.b64decode(base64_data)
-                # 上传图片
-                img = await client.upload_grp_image(BytesIO(img_bytes), event.grp_id)
-                modified_results_grp_msg.append(img)
-                
-        await client.send_grp_msg(modified_results_grp_msg, event.grp_id)
+    args = (event.msg, str(event.from_uin), 'red', 'LgrFriend' + str(event.from_uin))
+    results = await loop.run_in_executor(None, tsugu.bot, *args)
+    
+    # 不发送消息
+    if not results:
+        return
+    
+    # 处理所有文本类型的消息
+    text_messages = [Text(item['string']) for item in results if item['type'] == 'string']
+    # 2024-04-13 16:46:41,552 lagrange[ERROR]: Unhandled exception on task FriendMessage(from_uin=1528593481, from_uid='u_YKmklJbhZCBM1S-s7nq-HQ', to_uin=2078237957, to_uid='u_xB_sijtA2Evl64QRXv9COQ', seq=8407, msg_id=1642666553, timestamp=1712997990, msg='ycx', msg_chain=[Text(text='ycx')])
+    # 异步处理所有图片类型的消息，因为 tsugu 本质不存在图文混排，因此可以并行处理
+    image_messages = []
+    for item in [item for item in results if item['type'] == 'base64']:
+        image_message = await client.upload_friend_image(BytesIO(base64.b64decode(item['string'])), event.from_uid)
+        image_messages.append(image_message)
+
+    # 发送
+    await client.send_friend_msg(text_messages + image_messages, event.from_uid)
+
+
+async def handle_group_message(client: Client, event: GroupMessage):
+    print(event)
+    loop = asyncio.get_running_loop()
+    args = (event.msg, str(event.uin), 'red', str(event.grp_id))
+    results = await loop.run_in_executor(None, tsugu.bot, *args)
+    
+    # 不发送消息
+    if not results:
+        return
+    
+    # 处理所有文本类型的消息
+    text_messages = [Text(item['string']) for item in results if item['type'] == 'string']
+    
+    # 异步处理所有图片类型的消息，因为 tsugu 本质不存在图文混排，因此可以并行处理
+    image_messages = []
+    for item in [item for item in results if item['type'] == 'base64']:
+        image_message = await client.upload_grp_image(BytesIO(base64.b64decode(item['string'])), event.grp_id)
+        image_messages.append(image_message)
+        
+    # 发送
+    await client.send_grp_msg(text_messages + image_messages, event.grp_id)
