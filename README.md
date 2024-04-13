@@ -1,7 +1,7 @@
 
 # Lagrange Tsugu Python
 
-> ✨一款快速部署的Tsugu Bot
+> ✨快速部署的Tsugu Bot
 
 - [x] 群聊
 - [x] 私聊
