@@ -40,11 +40,13 @@ python bot
 lagrange_uin = 0
 lagrange_sign_url = http://127.0.0.1:7140/sign
 use_local_database = False
+quote = False
 ```
 
 - `lagrange_uin`：是机器人的 QQ 号，**必须修改**。
 - `lagrange_sign_url`：是 lagrange 的签名地址，**必须修改**。
 - `use_local_database`：是否使用本地数据库，普通用户不建议使用。
+- `quote`：是否开启引用回复。
 
 **✨此时再次运行，Tsugu 已经部署完成！✨**
 

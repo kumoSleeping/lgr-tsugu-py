@@ -14,7 +14,14 @@ import tsugu
 if os.path.exists('config.ini'):
     config = configparser.ConfigParser()
     config.read('config.ini')
-    use_local_database = config['DEFAULT']['use_local_database']
+    try:
+        use_local_database = config['DEFAULT']['use_local_database']
+    except KeyError:
+        use_local_database = 'False'
+    try:
+        quote = config['DEFAULT']['quote']
+    except KeyError:
+        quote = 'False'
 else:
     use_local_database = 'False'
 
@@ -68,6 +75,10 @@ async def handle_group_message(client: Client, event: GroupMessage):
     for item in [item for item in results if item['type'] == 'base64']:
         image_message = await client.upload_grp_image(BytesIO(base64.b64decode(item['string'])), event.grp_id)
         image_messages.append(image_message)
+
+    if quote == 'True':
+        quote_message = Quote.build(event)
+        text_messages.insert(0, quote_message)
         
     # 发送
     await client.send_grp_msg(text_messages + image_messages, event.grp_id)
