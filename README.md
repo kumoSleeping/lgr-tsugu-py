@@ -24,7 +24,7 @@ git clone git@github.com:kumoSleeping/lgr-tsugu-py.git
 
 # python 版本推荐 3.10+
 pip install tsugu
-pip install git+https://github.com/kumoSleeping/lagrange-python
+pip install git+https://github.com/LagrangeDev/lagrange-python@broken
 
 cd lgr-tsugu-py
 python bot
@@ -74,7 +74,7 @@ use_local_database = False
 ### 更新依赖
 ```shell
 pip install tsugu --upgrade
-pip install git+https://github.com/kumoSleeping/lagrange-python --upgrade
+pip install git+https://github.com/LagrangeDev/lagrange-python@broken --upgrade
 ```
 
 ### 使用官方源安装依赖
