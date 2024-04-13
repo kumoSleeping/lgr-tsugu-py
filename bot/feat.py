@@ -7,7 +7,7 @@ import os
 from lagrange.client.client import Client
 from lagrange.client.events.group import GroupMessage
 from lagrange.client.events.friend import FriendMessage
-from lagrange.client.message.elems import At, Raw, Text
+from lagrange.client.message.elems import At, Raw, Text, Quote
 
 import tsugu
 
@@ -27,10 +27,6 @@ if use_local_database == 'True':
     
 tsugu.config.reload_from_json('tsugu_config.json')
 
-import asyncio
-import base64
-from io import BytesIO
-
 
 async def handle_friend_message(client: Client, event: FriendMessage):
     print(event)
@@ -44,7 +40,6 @@ async def handle_friend_message(client: Client, event: FriendMessage):
     
     # 处理所有文本类型的消息
     text_messages = [Text(item['string']) for item in results if item['type'] == 'string']
-    # 2024-04-13 16:46:41,552 lagrange[ERROR]: Unhandled exception on task FriendMessage(from_uin=1528593481, from_uid='u_YKmklJbhZCBM1S-s7nq-HQ', to_uin=2078237957, to_uid='u_xB_sijtA2Evl64QRXv9COQ', seq=8407, msg_id=1642666553, timestamp=1712997990, msg='ycx', msg_chain=[Text(text='ycx')])
     # 异步处理所有图片类型的消息，因为 tsugu 本质不存在图文混排，因此可以并行处理
     image_messages = []
     for item in [item for item in results if item['type'] == 'base64']:
@@ -64,7 +59,7 @@ async def handle_group_message(client: Client, event: GroupMessage):
     # 不发送消息
     if not results:
         return
-    
+
     # 处理所有文本类型的消息
     text_messages = [Text(item['string']) for item in results if item['type'] == 'string']
     

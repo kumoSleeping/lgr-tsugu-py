@@ -3,7 +3,6 @@ import asyncio
 from lgr import main
 
 
-
 if __name__ == "__main__":
     import configparser
     # 检测 config.ini 是否存在
@@ -20,4 +19,8 @@ if __name__ == "__main__":
     config.read('config.ini')
     os.environ['LAGRANGE_UIN'] = config['DEFAULT']['LAGRANGE_UIN']
     os.environ['LAGRANGE_SIGN_URL'] = config['DEFAULT']['LAGRANGE_SIGN_URL']
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print('\nend...')
+        exit(0)

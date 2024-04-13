@@ -18,7 +18,6 @@ DEVICE_INFO_PATH = "./device.json"
 SIGINFO_PATH = "./sig.bin"
 
 
-
 class InfoManager:
     def __init__(self, uin: int, device_info_path: str, sig_info_path: str):
         self.uin: int = uin
