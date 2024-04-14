@@ -97,4 +97,4 @@ quote = False
 | 0.0.1 | 初次发布 | ✓ | - | - | - | - |
 | 0.0.2 | 支持本地数据库 | ✓ | config.ini 增加 use_local_database = True | ✓ | - | 0.0.34|
 | 0.0.3 | 支持私聊、引用回复、优化细节 | ✓ | config.ini 增加 quote = False | ✓ | ✓ | - |
-
+| 0.0.4 | 随 tsugu 更新 | ✓ | - | - | - | 0.0.35 |
