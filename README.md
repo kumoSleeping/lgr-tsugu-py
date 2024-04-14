@@ -11,7 +11,7 @@
 
 任选下方的一种方式即可。
 
-- **Windows exe 程序 💻**
+- **Windows exe 程序 💻**   
     Windows 用户可以下载 Release 中的 0.x.x-windows-amd-64.exe 文件，双击运行即可。   
     然后直接跳到 [2.配置文件](#2.配置文件) 继续阅读。
 
