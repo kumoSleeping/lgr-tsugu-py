@@ -7,31 +7,31 @@
 - [x] 私聊
 - [ ] 零食绘画
 
-## 1.⚙️准备程序
+## ⚙️ 准备程序
 
 任选下方的一种方式即可。
 
-### Windows exe 程序
+- **Windows exe 程序 💻**
+    Windows 用户可以下载 Release 中的 0.x.x-windows-amd-64.exe 文件，双击运行即可。   
+    然后直接跳到 [2.配置文件](#2.配置文件) 继续阅读。
 
-Windows 用户可以下载 Release 中的 0.x.x-windows-amd-64.exe 文件，双击运行即可。   
-然后直接跳到 [2.配置文件](#2.配置文件) 继续阅读。
 
-### Python 构建
+- **Python 构建 🐍**
 
-```shell
-# 已安装 git
-git clone git@github.com:kumoSleeping/lgr-tsugu-py.git
+    ```shell
+    # 已安装 git
+    git clone git@github.com:kumoSleeping/lgr-tsugu-py.git
 
-# python 版本推荐 3.10+
-pip install tsugu
-pip install git+https://github.com/LagrangeDev/lagrange-python@broken
+    # python 版本推荐 3.10+
+    pip install tsugu
+    pip install git+https://github.com/LagrangeDev/lagrange-python@broken
 
-cd lgr-tsugu-py
-python bot
-# python3 bot
-```
+    cd lgr-tsugu-py
+    python bot
+    # python3 bot
+    ```
 
-## 2.🖊️配置文件
+## 🖊️ 配置登陆
 
 完成上面的操作后会生成配置文件，使用文本编辑器打开 `config.ini` 文件，修改配置。
 
@@ -48,10 +48,9 @@ quote = False
 - `use_local_database`：是否使用本地数据库，普通用户不建议使用。
 - `quote`：是否开启引用回复。
 
-**✨此时再次运行，Tsugu 已经部署完成！✨**
+**此时运行项目，同目录下会生成二维码图片，打开后使用 BOT 账号扫码登陆即可。**
 
-
-## 3.🤔常见问题
+## 🤔 常见问题
 
 
 [//]: # (表格)
@@ -67,25 +66,35 @@ quote = False
 > 如有疑问可以加入 BanGDream 相关开发群 666808414 友好交流，如果您不知道什么是 BanGDream，仔细考虑您是否要加群。
 
 
-## 4.📖项目依赖
+## 📖 项目依赖
 
-### [lagrange-python](https://github.com/LagrangeDev/lagrange-python)
-### [tsugu-python-frontend](https://github.com/kumoSleeping/tsugu-python-frontend)   
-### [tsugu-bangdream-bot](https://github.com/Yamamoto-2/tsugu-bangdream-bot)   
+| 项目 | 说明 | 技术栈 |
+| --- | --- | --- |
+[lagrange-python](https://github.com/LagrangeDev/lagrange-python)  | BOT 登陆端 | Python / Lagrange.core |
+[tsugu-python-frontend](https://github.com/kumoSleeping/tsugu-python-frontend)    | Tsugu 前端 | Python |
+[tsugu-bangdream-bot](https://github.com/Yamamoto-2/tsugu-bangdream-bot)    | Tsugu 后端 | Node.js |
 
-### 更新依赖
-```shell
-pip install tsugu --upgrade
-pip install git+https://github.com/LagrangeDev/lagrange-python@broken --upgrade
-```
+- 更新依赖 ⬆
+    ```shell
+    pip install tsugu --upgrade
 
-### 使用官方源安装依赖
-```shell
-pip install tsugu --index-url https://pypi.org/simple/
-```
+    pip uninstall lagrange-python
+    pip install git+https://github.com/LagrangeDev/lagrange-python@broken
+    ```
 
-### 卸载依赖
-```shell
-pip uninstall tsugu
-pip uninstall lagrange-python
-```
+- 卸载依赖 🗑
+    ```shell
+    pip uninstall tsugu
+    pip uninstall lagrange-python
+    ```
+
+## 📦 版本更新
+
+> 如果您是 exe 用户，无需关注*号内容
+
+| 版本 | 更新内容 | 发布 exe | 配置文件增删 | *需要 git pull 本项目 | *建议更新 lagrange | *需要更新 tsugu 至 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0.0.1 | 初次发布 | ✓ | - | - | - | - |
+| 0.0.2 | 支持本地数据库 | ✓ | config.ini 增加 use_local_database = True | ✓ | - | 0.0.34|
+| 0.0.3 | 支持私聊、引用回复、优化细节 | ✓ | config.ini 增加 quote = False | ✓ | ✓ | - |
+
