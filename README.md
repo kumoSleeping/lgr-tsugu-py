@@ -1,11 +1,9 @@
 
-# Lagrange Tsugu Python
+<h1 align="center"> Lagrange Tsugu Python <img src="./logo.jpg" width="300" height="300" alt="tmrn"/> </h1>
 
-> ✨快速部署的 Tsugu Bot
-
-![](/logo.jpg)
-
-*这是一个小 nina，她会祝愿你的 bot 一帆风顺～*
+<h5 align="center">
+这是一个小 nina，她会祝愿你的 bot 一帆风顺～
+</h5>
 
 
 ## ⚙️ 准备程序
