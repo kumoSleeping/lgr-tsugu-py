@@ -1,5 +1,5 @@
 
-<h1 align="center"> Lagrange Tsugu Python <img src="./logo.jpg" width="300" height="300" alt="tmrn"/> </h1>
+<h1 align="center"> Lagrange Tsugu Python <img src="./logo.jpg" width="300" height="300" alt="nina"/> </h1>
 
 <h5 align="center">
 这是一个小 nina，她会祝愿你的 bot 一帆风顺～
