@@ -1,11 +1,12 @@
 
 # Lagrange Tsugu Python
 
-> ✨快速部署的Tsugu Bot
+> ✨快速部署的 Tsugu Bot
 
-- [x] 群聊
-- [x] 私聊
-- [ ] 零食绘画
+![](/logo.jpg)
+
+*这是一个小 nina，她会祝愿你的 bot 一帆风顺～*
+
 
 ## ⚙️ 准备程序
 
