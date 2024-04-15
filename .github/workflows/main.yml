@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'version.ini'
+      - 'version.txt'
   workflow_dispatch:
 
 permissions:
