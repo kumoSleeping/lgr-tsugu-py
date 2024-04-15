@@ -31,17 +31,28 @@ jobs:
 
       - name: Build executable
         run: |
-          pyinstaller --onefile your_script.py
-          VERSION=$(python setup.py --version)
+          pyinstaller --onefile bot/__main__.py --icon=./ico.ico
+          echo "VERSION=$(python setup.py --version)" >> $GITHUB_ENV
           mv ./dist/your_script.exe ./dist/tsugu-Windows-amd64-${VERSION}.exe
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
 
-      - name: Upload executable to GitHub Release
+      - name: Create GitHub Release
+        id: create_release  # 加上这个id
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.VERSION }}
+          release_name: Release ${{ env.VERSION }}
+          draft: false
+          prerelease: false
+  
+      - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ github.event.repository.releases[0].upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}  # 确保这里使用了上面设置的id
           asset_path: ./dist/tsugu-Windows-amd64-${{ env.VERSION }}.exe  # 更新文件路径和名称
           asset_name: tsugu-Windows-amd64-${{ env.VERSION }}.exe  # 更新文件名
           asset_content_type: application/x-msdownload
