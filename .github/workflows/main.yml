@@ -31,15 +31,21 @@ jobs:
           pip install tsugu
           pip install git+https://github.com/LagrangeDev/lagrange-python@broken
 
+      - name: Set VERSION environment variable
+        run: |
+          echo "VERSION=$(python setup.py --version)" >> $GITHUB_ENV
+      
+      - name: Print VERSION
+        run: |
+          echo "VERSION=${{ env.VERSION }}"
       - name: Build executable
         run: |
           pyinstaller --onefile bot/__main__.py --icon=./ico.ico
-          echo "VERSION=$(python setup.py --version)" >> $GITHUB_ENV
-          mv ./dist/__main__.exe ./dist/tsugu-Windows-amd64-${VERSION}.exe
+      
+      - name: Rename executable file
+        run: |
+          mv ./dist/__main__.exe ./dist/tsugu-Windows-amd64-${{ env.VERSION }}.exe
 
-      - name: Print VERSION
-        run: echo "VERSION=${{ env.VERSION }}"
-        
       - name: Create GitHub Release
         id: create_release  # 加上这个id
         uses: actions/create-release@v1
