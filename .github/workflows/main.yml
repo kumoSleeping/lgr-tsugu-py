@@ -36,7 +36,7 @@ jobs:
           pyinstaller --onefile bot/__main__.py --icon=./ico.ico
           echo "VERSION=$(python setup.py --version)" >> $GITHUB_ENV
           mv ./dist/__main__.exe ./dist/tsugu-Windows-amd64-${VERSION}.exe
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
 
       - name: Create GitHub Release
         id: create_release  # 加上这个id
