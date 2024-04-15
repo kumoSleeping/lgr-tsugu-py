@@ -37,7 +37,9 @@ jobs:
           echo "VERSION=$(python setup.py --version)" >> $GITHUB_ENV
           mv ./dist/__main__.exe ./dist/tsugu-Windows-amd64-${VERSION}.exe
 
-
+      - name: Print VERSION
+        run: echo "VERSION=${{ env.VERSION }}"
+        
       - name: Create GitHub Release
         id: create_release  # 加上这个id
         uses: actions/create-release@v1
