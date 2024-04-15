@@ -33,8 +33,9 @@ jobs:
 
       - name: Set VERSION environment variable
         run: |
-          python -c "import configparser; config = configparser.ConfigParser(); config.read('version.ini'); print('VERSION=' + config['metadata']['version'])" >> $GITHUB_ENV
-
+          VERSION=$(cat version.txt)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          
       - name: Print VERSION
         run: |
           echo "VERSION=${{ env.VERSION }}"
