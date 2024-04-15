@@ -24,21 +24,21 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Set VERSION environment variable
+        run: |
+          $VERSION = Get-Content version.txt
+          echo "VERSION=$VERSION" >> $env:GITHUB_ENV
+      - name: Print VERSION
+        run: |
+          echo "VERSION=${{ env.VERSION }}"
+          
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller
           pip install tsugu
           pip install git+https://github.com/LagrangeDev/lagrange-python@broken
-
-      - name: Set VERSION environment variable
-        run: |
-          VERSION=$(cat version.txt)
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
           
-      - name: Print VERSION
-        run: |
-          echo "VERSION=${{ env.VERSION }}"
       - name: Build executable
         run: |
           pyinstaller --onefile bot/__main__.py --icon=./ico.ico
