@@ -28,11 +28,12 @@ else:
 if not os.path.exists('tsugu_config.json'):
     tsugu.config.output_config_json('tsugu_config.json')
 
+    
+tsugu.config.reload_from_json('tsugu_config.json')
+
 if use_local_database == 'True':
     print('Using local database', use_local_database)
     tsugu.database('tsugu_database.db')
-    
-tsugu.config.reload_from_json('tsugu_config.json')
 
 
 async def handle_friend_message(client: Client, event: FriendMessage):
@@ -61,6 +62,7 @@ async def handle_group_message(client: Client, event: GroupMessage):
     print(event)
     loop = asyncio.get_running_loop()
     args = (event.msg, str(event.uin), 'red', str(event.grp_id))
+    print(tsugu.config.user_database_path)
     results = await loop.run_in_executor(None, tsugu.bot, *args)
     
     # 不发送消息
