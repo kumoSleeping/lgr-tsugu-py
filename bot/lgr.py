@@ -1,5 +1,5 @@
 import asyncio
-import logging
+from loguru import logger
 import os
 
 from lagrange.client.client import Client
@@ -43,21 +43,21 @@ class InfoManager:
         with open(self._device_info_path, "wb") as f:
             f.write(self._device.dump())
 
-        print("device info saved")
+        logger.success("device info saved")
 
     def __enter__(self):
         if os.path.isfile(self._device_info_path):
             with open(self._device_info_path, "rb") as f:
                 self._device = DeviceInfo.load(f.read())
         else:
-            print(f"{self._device_info_path} not found, generating...")
+            logger.error(f"{self._device_info_path} not found, generating...")
             self._device = DeviceInfo.generate(self.uin)
 
         if os.path.isfile(self._sig_info_path):
             with open(self._sig_info_path, "rb") as f:
                 self._sig_info = SigInfo.load(f.read())
         else:
-            print(f"{self._sig_info_path} not found, generating...")
+            logger.warning(f"{self._sig_info_path} not found, generating...")
             self._sig_info = SigInfo.new(8848)
         return self
 
@@ -65,20 +65,15 @@ class InfoManager:
         pass
 
 
-logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s %(name)s[%(levelname)s]: %(message)s"
-)
-
-
 async def heartbeat_task(client: Client):
     while True:
         await client.online.wait()
         await asyncio.sleep(120)
-        print(f"{round(await client.sso_heartbeat(True) * 1000, 2)}ms to server")
+        logger.info(f"{round(await client.sso_heartbeat(True) * 1000, 2)}ms to server")
 
 
 async def handle_kick(client: "Client", event: "ServerKick"):
-    print(f"被服务器踢出：[{event.title}] {event.tips}")
+    logger.error(f"被服务器踢出：[{event.title}] {event.tips}")
     await client.stop()
 
 

@@ -39,6 +39,14 @@ lagrange_uin = 0
 lagrange_sign_url = http://127.0.0.1:7140/sign
 use_local_database = False
 quote = False
+debug = True
+
+[GroupBlacklist]
+Group1 = 123456789
+Group2 = 987654321
+
+[UserBlacklist]
+User1 = 123456789
 ```
 
 - `lagrange_uin`：是机器人的 QQ 号，**必须修改**。
