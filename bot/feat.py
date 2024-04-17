@@ -82,22 +82,19 @@ async def handle_friend_message(client: Client, event: FriendMessage):
 
     loop = asyncio.get_running_loop()
     args = (event.msg, str(event.from_uin), 'red', 'LgrFriend' + str(event.from_uin))
-    results = await loop.run_in_executor(None, tsugu.bot, *args)
+    response = await loop.run_in_executor(None, tsugu.handler, *args)
     
     # 不发送消息
-    if not results:
+    if not response:
         return
-    
-    # 处理所有文本类型的消息
-    text_messages = [Text(item['string']) for item in results if item['type'] == 'string']
-    # 异步处理所有图片类型的消息，因为 tsugu 本质不存在图文混排，因此可以并行处理
-    image_messages = []
-    for item in [item for item in results if item['type'] == 'base64']:
-        image_message = await client.upload_friend_image(BytesIO(base64.b64decode(item['string'])), event.from_uid)
-        image_messages.append(image_message)
 
-    # 发送
-    await client.send_friend_msg(text_messages + image_messages, event.from_uid)
+    msg_list = []
+    for item in response:
+        # 处理文本类型的消息
+        msg_list.append(Text(item)) if isinstance(item, str) else None
+        msg_list.append(await client.upload_friend_image(BytesIO(item), event.from_uid)) if isinstance(item, bytes) else None
+
+    await client.send_friend_msg(msg_list, event.from_uid)
 
 
 async def handle_group_message(client: Client, event: GroupMessage):
@@ -109,24 +106,19 @@ async def handle_group_message(client: Client, event: GroupMessage):
 
     loop = asyncio.get_running_loop()
     args = (event.msg, str(event.uin), 'red', str(event.grp_id))
-    results = await loop.run_in_executor(None, tsugu.bot, *args)
-    
+    response = await loop.run_in_executor(None, tsugu.handler, *args)
+
     # 不发送消息
-    if not results:
+    if not response:
         return
 
-    # 处理所有文本类型的消息
-    text_messages = [Text(item['string']) for item in results if item['type'] == 'string']
-    
-    # 异步处理所有图片类型的消息，因为 tsugu 本质不存在图文混排，因此可以并行处理
-    image_messages = []
-    for item in [item for item in results if item['type'] == 'base64']:
-        image_message = await client.upload_grp_image(BytesIO(base64.b64decode(item['string'])), event.grp_id)
-        image_messages.append(image_message)
+    msg_list = []
+    for item in response:
+        # 处理文本类型的消息
+        msg_list.append(Text(item)) if isinstance(item, str) else None
+        msg_list.append(await client.upload_grp_image(BytesIO(item), event.grp_id)) if isinstance(item, bytes) else None
 
     if config_quote == 'True':
-        quote_message = Quote.build(event)
-        text_messages.insert(0, quote_message)
-        
-    # 发送
-    await client.send_grp_msg(text_messages + image_messages, event.grp_id)
+        msg_list.insert(0, Quote.build(event))
+
+    await client.send_grp_msg(msg_list, event.grp_id)
