@@ -51,19 +51,23 @@ if not os.path.exists('tsugu_config.json'):
 
     
 tsugu.config.reload_from_json('tsugu_config.json')
+# 设置loguru的日志级别
+logger.remove()
+logger.add(sys.stdout, level="DEBUG")
+
+
+# 将logging的输出重定向到loguru
+def redirect_logging(record):
+    logger_opt = logger.opt(depth=6, exception=record.exc_info)
+    logger_opt.log(record.levelno, record.getMessage())
+
 
 if config_debug == 'True':
-    # 设置loguru的日志级别
-    logger.remove()
-    logger.add(sys.stdout, level="DEBUG")
-
-    # 将logging的输出重定向到loguru
-    def redirect_logging(record):
-        logger_opt = logger.opt(depth=6, exception=record.exc_info)
-        logger_opt.log(record.levelno, record.getMessage())
-
-
     logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger().handlers = [logging.Handler()]
+    logging.getLogger().handlers[0].emit = redirect_logging
+else:
+    logging.basicConfig(level=logging.WARNING)
     logging.getLogger().handlers = [logging.Handler()]
     logging.getLogger().handlers[0].emit = redirect_logging
 
