@@ -5,17 +5,16 @@
 
 
 
-## ⚙️ 准备程序
+## 💻 准备程序
 
 任选下方的一种方式即可。
 
 - **Windows exe 程序 💻**   
-    Windows 用户可以下载 Release 中的 tsugu-Windows-amd64-0.x.x.exe 文件，双击运行即可。   
-    然后直接跳到 `🖊️ 配置登陆` 继续阅读。
+    Windows 用户可以下载 Release 中的 tsugu-Windows-amd64-1.x.x.exe 文件，双击运行即可。   
+    然后直接跳到 `📱📷 登陆` 继续阅读。
 
 
 - **Python 构建 🐍**
-
     ```shell
     # 已安装 git
     git clone git@github.com:kumoSleeping/lgr-tsugu-py.git
@@ -29,33 +28,132 @@
     # python3 bot
     ```
 
-## 🖊️ 配置登陆
+## 📱📷 登陆
 
-完成上面的操作后会生成配置文件，使用文本编辑器打开 `config.ini` 文件，修改配置。
+完成上面的操作后会生成配置文件，使用文本编辑器打开 `config.json` 文件，修改配置。
 
-```ini
-[DEFAULT]
-lagrange_uin = 0
-lagrange_sign_url = http://127.0.0.1:7140/sign
-use_local_database = False
-quote = False
-debug = True
+- lagrange_uin
+- lagrange_sign_url
 
-[GroupBlacklist]
-Group1 = 123456789
-Group2 = 987654321
+上方两个配置项必填，其他配置项可根据需求修改。
+然后运行项目，同目录下会生成二维码图片，打开后使用 BOT 账号扫码登陆即可。
 
-[UserBlacklist]
-User1 = 123456789
+
+## 📒🖊️⌨️ 配置
+
+```py
+lagrange_uin: str = ''
+"""
+**必填**
+lagrange_uin 登录账号
+"""
+
+lagrange_sign_url: str = ''
+"""
+**必填**
+lagrange_sign_url 签名地址
+"""
+
+lagrange_group_blacklist: List[str] = []
+"""
+lagrange_group_blacklist 群黑名单
+例: ['123456789', '987654321']
+"""
+
+lagrange_user_blacklist: List[str] = []
+"""
+lagrange_user_blacklist 用户黑名单
+例: ['123456789', '987654321']
+"""
+
+lagrange_debug: bool = True
+"""
+lagrange_debug 是否开启调试模式日志
+"""
+
+lagrange_quote: bool = False
+"""
+lagrange_quote 是否开启引用回复
+"""
+
+tsugu_api_timeout: int = 10
+'''
+请求超时时间
+'''
+
+tsugu_api_proxy: str = ''
+'''
+代理地址
+'''
+
+tsugu_api_backend_url: str = 'http://tsugubot.com:8080'
+'''
+后端地址
+默认为 Tsugu 官方后端，若有自建后端服务器可进行修改。
+'''
+
+tsugu_api_backend_proxy: bool = True
+'''
+是否使用后端代理
+当设置代理地址后可修改此项以决定是否使用代理。
+默认为 True，即使用后端代理。若使用代理时后端服务器无法访问，可将此项设置为 False。
+'''
+
+tsugu_api_userdata_backend_url: str = 'http://tsugubot.com:8080'
+'''
+用户数据后端地址
+默认为 Tsugu 官方后端，若有自建后端服务器可进行修改。
+'''
+
+tsugu_api_userdata_backend_proxy: bool = True
+'''
+是否使用用户数据后端代理
+当设置代理地址后可修改此项以决定是否使用代理。
+默认为 True，即使用后端代理。若使用代理时后端服务器无法访问，可将此项设置为 False。
+'''
+
+tsugu_api_use_easy_bg: bool = True
+'''
+是否使用简易背景，使用可在降低背景质量的前提下加快响应速度。
+默认为 True，即使用简易背景。若不使用简易背景，可将此项设置为 False。
+'''
+
+tsugu_api_compress: bool = True
+'''
+是否压缩返回数据，压缩可减少返回数据大小。
+默认为 True，即压缩返回数据。若不压缩返回数据，可将此项设置为 False。
+'''
+
+tsugu_prefix: List[str] = ['/', '']
+'''
+命令前缀
+最后一个参数如果不是空字符串，则只有在命令前缀符合时才会触发命令。
+'''
+
+tsugu_allow_gap_less: bool = True
+'''
+是否允许命令与参数之间没有空格
+'''
+
+tsugu_get_remote_user_data_max_retry: int = 3
+'''
+获取远程用户数据最大重试次数
+'''
+
+tsugu_token_name: str = "Tsugu"
+'''
+bandori station token
+'''
+tsugu_bandori_station_token: str = "ZtV4EX2K9Onb"
+'''
+bandori station token
+'''
+
+tsugu_ban_gacha_simulate_group_data: List = []
+'''
+需要关闭模拟抽卡的群
+'''
 ```
-
-- `lagrange_uin`：是机器人的 QQ 号，**必须修改**。
-- `lagrange_sign_url`：是 lagrange 的签名地址，**必须修改**。
-- `use_local_database`：是否使用本地数据库，普通用户不建议使用。
-- `quote`：是否开启引用回复。
-- `debug`：是否开启 debug 模式。
-- `GroupBlacklist`：群聊黑名单，**可选**。
-- `UserBlacklist`：用户黑名单，**可选**。
 
 **此时运行项目，同目录下会生成二维码图片，打开后使用 BOT 账号扫码登陆即可。**
 
@@ -66,10 +164,9 @@ User1 = 123456789
 
 | 问题           | 解决方案                                           |
 |--------------|------------------------------------------------|
-| 网络联通性问题      | 启用代理 / 更换后端或自建后端 / config.ini 启动本地数据库          |
-| 网络代理问题         | 当你本地启动好代理时，更改 tsugu_config.json 配置             |
+| 网络联通性问题      | 启用代理 / 更换后端或自建后端                               |
 | 收不到消息 / 登陆失败 | 确保没有屏蔽群聊 / 免打扰 / 抢占登陆 linux QQ / 正确配置 sign 地址。 |
-| sign 填什么     | 暂无，不能在公共场合泄露。                                  |
+| sign 填什么     | 不能在公共场合泄露。                                     |
 
 
 > 如有疑问可以加入 BanGDream 相关开发群 666808414 友好交流，如果您不知道什么是 BanGDream，仔细考虑您是否要加群。
@@ -103,7 +200,8 @@ User1 = 123456789
 
 | 版本     | 更新内容                   | 配置文件增删                                  | *需要 git pull 本项目 | *建议更新 lagrange | *需要更新 tsugu 至 |
 |--------|------------------------|-----------------------------------------|------------------|---------------|---------------|
-| 0.0.14 | 修复help无响应          | -                                       | -                | - | 0.5.7         |
+| 1.0.0  | 进入一个正式版本               | 完全改变                                    | ✓                | ✓ | 1.0.6         |
+| 0.0.14 | 修复help无响应              | -                                       | -                | - | 0.5.7         |
 | 0.0.13 | 修复bug若干                | -                                       | -                | - | -             |
 | 0.0.12 | 修复bug若干                | -                                       | -                | - | 0.5.4         |
 | 0.0.11 | 更换 log 支持黑名单 支持开关debug | config.ini 更新                           | ✓                | - | 0.4.14        |

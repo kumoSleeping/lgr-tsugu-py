@@ -1,27 +1,27 @@
-import os
 import asyncio
 from lgr import main
+import os
+import json
+from loguru import logger
+from config import Config
 
 
 if __name__ == "__main__":
-    import configparser
-    # 检测 config.ini 是否存在
-    if not os.path.exists('config.ini'):
-        print('config.ini 不存在，请先配置 config.ini')
-        
-        config = configparser.ConfigParser()
-        config['DEFAULT'] = {'LAGRANGE_UIN': '0', 'LAGRANGE_SIGN_URL': 'http://127.0.0.1:7140/sign', 'use_local_database': 'False', 'quote': 'False', 'debug': 'True'}
-        config['GroupBlacklist'] = {'Group1': '123456789', 'Group2': '987654321'}
-        config['UserBlacklist'] = {'User1': '1145141919810'}
-        with open('config.ini', 'w') as f:
-            config.write(f)
-        exit(0)
-    
-    config = configparser.ConfigParser()
-    config.read('config.ini')
-    os.environ['LAGRANGE_UIN'] = config['DEFAULT']['LAGRANGE_UIN']
-    os.environ['LAGRANGE_SIGN_URL'] = config['DEFAULT']['LAGRANGE_SIGN_URL']
     try:
+        if os.path.exists('config.json'):
+            with open('config.json', 'r') as f:
+                tsugu_lgr_config_dict = json.load(f)
+        else:
+            logger.error('config.json 不存在，请先配置 config.json')
+            exit(0)
+        if 'lagrange_uin' not in tsugu_lgr_config_dict or tsugu_lgr_config_dict['lagrange_uin'] == '':
+            logger.error('请先配置 lagrange_uin')
+            exit(0)
+        if 'lagrange_sign_url' not in tsugu_lgr_config_dict or tsugu_lgr_config_dict['lagrange_sign_url'] == '':
+            logger.error('请先配置 lagrange_sign_url')
+            exit(0)
+        os.environ['LAGRANGE_UIN'] = tsugu_lgr_config_dict['lagrange_uin']
+        os.environ['LAGRANGE_SIGN_URL'] = tsugu_lgr_config_dict['lagrange_sign_url']
         asyncio.run(main())
     except KeyboardInterrupt:
         print('\nend...')

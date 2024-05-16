@@ -1,62 +1,54 @@
 from io import BytesIO
-import base64
-import asyncio
-import configparser
 import os
 from loguru import logger
 import logging
 import sys
+import json
 
 from lagrange.client.client import Client
 from lagrange.client.events.group import GroupMessage
 from lagrange.client.events.friend import FriendMessage
 from lagrange.client.message.elems import At, Raw, Text, Quote
 
-import tsugu
+import tsugu_async
+from tsugu_async import config as tsugu_config
+from tsugu_api_async import settings as tsugu_api_config
+
+from config import Config
 
 
-if os.path.exists('config.ini'):
-    config = configparser.ConfigParser()
-    config.read('config.ini')
-    try:
-        use_local_database = config['DEFAULT']['use_local_database']
-    except KeyError:
-        use_local_database = 'False'
-    try:
-        config_quote = config['DEFAULT']['quote']
-    except KeyError:
-        config_quote = 'False'
-    try:
-        config_debug = config['DEFAULT']['debug']
-    except KeyError:
-        config_debug = 'True'
-    try:
-        Group_blacklist = config['GroupBlacklist']
-    except KeyError:
-        Group_blacklist = {}
-    try:
-        User_blacklist = config['UserBlacklist']
-    except KeyError:
-        User_blacklist = {}
+if os.path.exists('config.json'):
+    with open('config.json', 'r') as f:
+        tsugu_lgr_config_dict = json.load(f)
 else:
-    use_local_database = 'False'
-    config_quote = 'False'
-    config_debug = 'True'
-    Group_blacklist = {}
-    User_blacklist = {}
+    with open('config.json', 'w', encoding='utf-8') as f:
+        json.dump(vars(Config()), f, indent=4)
+    logger.error('config.json 不存在，请先配置 config.json')
+    exit(0)
+
+# 更新配置对象
+for key, value in tsugu_lgr_config_dict.items():
+    if key.startswith("tsugu_api_"):
+        attr_name = key.replace("tsugu_api_", "")
+        if hasattr(tsugu_api_config, attr_name):
+            setattr(tsugu_api_config, attr_name, value)
+    elif key.startswith("tsugu_"):
+        attr_name = key.replace("tsugu_", "")
+        if hasattr(tsugu_config, attr_name):
+            setattr(tsugu_config, attr_name, value)
 
 
-if not os.path.exists('tsugu_config.json'):
-    tsugu.config.output_config_json('tsugu_config.json')
+config_quote = tsugu_lgr_config_dict['lagrange_quote']
+config_debug = tsugu_lgr_config_dict['lagrange_debug']
+group_blacklist = tsugu_lgr_config_dict['lagrange_group_blacklist']
+user_blacklist = tsugu_lgr_config_dict['lagrange_user_blacklist']
 
-    
-tsugu.config.reload_from_json('tsugu_config.json')
+
 # 设置loguru的日志级别
 logger.remove()
 logger.add(sys.stdout, level="DEBUG")
 
 
-# 将logging的输出重定向到loguru
 def redirect_logging(record):
     logger_opt = logger.opt(depth=6, exception=record.exc_info)
     logger_opt.log(record.levelno, record.getMessage())
@@ -72,25 +64,18 @@ else:
     logging.getLogger().handlers[0].emit = redirect_logging
 
 
-if use_local_database == 'True':
-    logger.info(f'Using local tsugu player data database.')
-    tsugu.database('tsugu_database.db')
-
-
 async def handle_friend_message(client: Client, event: FriendMessage):
     logger.info(f'User_{str(event.from_uin)}: {event.msg}')
-    if User_blacklist != {}:
-        if str(event.from_uin) in User_blacklist.values():
+    if user_blacklist:
+        if str(event.from_uin) in user_blacklist:
             logger.warning(f'User {str(event.from_uin)} is in blacklist')
             return
 
-    loop = asyncio.get_running_loop()
-    args = (event.msg, str(event.from_uin), 'red', 'LgrFriend' + str(event.from_uin))
-    response = await loop.run_in_executor(None, tsugu.handler, *args)
+    response = await tsugu_async.handler(event.msg, str(event.from_uin), 'red', 'LgrFriend' + str(event.from_uin))
     
     # 不发送消息
     if not response:
-        return
+         return
 
     msg_list = []
     for item in response:
@@ -103,14 +88,12 @@ async def handle_friend_message(client: Client, event: FriendMessage):
 
 async def handle_group_message(client: Client, event: GroupMessage):
     logger.info(f'[ {event.grp_name} ] {event.nickname}: {event.msg}')
-    if Group_blacklist != {}:
-        if str(event.grp_id) in Group_blacklist.values():
+    if group_blacklist:
+        if str(event.grp_id) in group_blacklist:
             logger.warning(f'Group {str(event.grp_id)} is in blacklist')
             return
 
-    loop = asyncio.get_running_loop()
-    args = (event.msg, str(event.uin), 'red', str(event.grp_id))
-    response = await loop.run_in_executor(None, tsugu.handler, *args)
+    response = await tsugu_async.handler(event.msg, str(event.uin), 'red', str(event.grp_id))
 
     # 不发送消息
     if not response:

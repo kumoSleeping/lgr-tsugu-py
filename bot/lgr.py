@@ -97,7 +97,6 @@ async def main():
         client.events.subscribe(FriendMessage, handle_friend_message)
         
         client.connect()
-        asyncio.create_task(heartbeat_task(client))
         if im.sig_info.d2:
             if not await client.register():
                 await client.login()
