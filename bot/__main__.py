@@ -3,26 +3,26 @@ from lgr import main
 import os
 import json
 from loguru import logger
-from config import Config
+import sys
 
 
 if __name__ == "__main__":
     try:
-        if os.path.exists('config.json'):
-            with open('config.json', 'r') as f:
+        if os.path.exists('tsugu_lgr_config.json'):
+            with open('tsugu_lgr_config.json', 'r') as f:
                 tsugu_lgr_config_dict = json.load(f)
         else:
-            logger.error('config.json 不存在，请先配置 config.json')
-            exit(0)
+            logger.error('tsugu_lgr_config.json 不存在，请先配置 tsugu_lgr_config.json')
+            sys.exit(0)
         if 'lagrange_uin' not in tsugu_lgr_config_dict or tsugu_lgr_config_dict['lagrange_uin'] == '':
             logger.error('请先配置 lagrange_uin')
-            exit(0)
+            sys.exit(0)
         if 'lagrange_sign_url' not in tsugu_lgr_config_dict or tsugu_lgr_config_dict['lagrange_sign_url'] == '':
             logger.error('请先配置 lagrange_sign_url')
-            exit(0)
+            sys.exit(0)
         os.environ['LAGRANGE_UIN'] = tsugu_lgr_config_dict['lagrange_uin']
         os.environ['LAGRANGE_SIGN_URL'] = tsugu_lgr_config_dict['lagrange_sign_url']
         asyncio.run(main())
     except KeyboardInterrupt:
         print('\nend...')
-        exit(0)
+        sys.exit(0)

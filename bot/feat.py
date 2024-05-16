@@ -17,14 +17,14 @@ from tsugu_api_async import settings as tsugu_api_config
 from config import Config
 
 
-if os.path.exists('config.json'):
-    with open('config.json', 'r') as f:
+if os.path.exists('tsugu_lgr_config.json'):
+    with open('tsugu_lgr_config.json', 'r') as f:
         tsugu_lgr_config_dict = json.load(f)
 else:
-    with open('config.json', 'w', encoding='utf-8') as f:
+    with open('tsugu_lgr_config.json', 'w', encoding='utf-8') as f:
         json.dump(vars(Config()), f, indent=4)
-    logger.error('config.json 不存在，请先配置 config.json')
-    exit(0)
+    logger.error('tsugu_lgr_config.json 不存在，请先配置 config.json')
+    sys.exit(0)
 
 # 更新配置对象
 for key, value in tsugu_lgr_config_dict.items():

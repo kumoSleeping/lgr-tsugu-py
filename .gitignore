@@ -164,6 +164,7 @@ config.ini
 qrcode.png
 device.json
 sig.bin
+./tsugu_lgr_config.json
 
 
 **/.DS_Store
