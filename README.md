@@ -57,13 +57,13 @@ lagrange_sign_url 签名地址
 lagrange_group_blacklist: List[str] = []
 """
 lagrange_group_blacklist 群黑名单
-例: ['123456789', '987654321']
+例: ["123456789", "987654321"]
 """
 
 lagrange_user_blacklist: List[str] = []
 """
 lagrange_user_blacklist 用户黑名单
-例: ['123456789', '987654321']
+例: ["123456789", "987654321"]
 """
 
 lagrange_debug: bool = True
@@ -75,6 +75,16 @@ lagrange_quote: bool = False
 """
 lagrange_quote 是否开启引用回复
 """
+
+tsugu_compact = True
+'''
+是否允许命令与参数之间没有空格
+'''
+
+tsugu_disable_gacha_simulate_group_ids = []
+'''
+需要关闭模拟抽卡的群
+'''
 
 tsugu_api_timeout: int = 10
 '''
@@ -123,36 +133,6 @@ tsugu_api_compress: bool = True
 是否压缩返回数据，压缩可减少返回数据大小。
 默认为 True，即压缩返回数据。若不压缩返回数据，可将此项设置为 False。
 '''
-
-tsugu_prefix: List[str] = ['/', '']
-'''
-命令前缀
-最后一个参数如果不是空字符串，则只有在命令前缀符合时才会触发命令。
-'''
-
-tsugu_allow_gap_less: bool = True
-'''
-是否允许命令与参数之间没有空格
-'''
-
-tsugu_get_remote_user_data_max_retry: int = 3
-'''
-获取远程用户数据最大重试次数
-'''
-
-tsugu_token_name: str = "Tsugu"
-'''
-bandori station token
-'''
-tsugu_bandori_station_token: str = "ZtV4EX2K9Onb"
-'''
-bandori station token
-'''
-
-tsugu_ban_gacha_simulate_group_data: List = []
-'''
-需要关闭模拟抽卡的群
-'''
 ```
 
 **此时运行项目，同目录下会生成二维码图片，打开后使用 BOT 账号扫码登陆即可。**
@@ -200,7 +180,8 @@ tsugu_ban_gacha_simulate_group_data: List = []
 
 | 版本     | 更新内容                   | 配置文件增删                                  | *需要 git pull 本项目 | *建议更新 lagrange | *需要更新 tsugu 至 |
 |--------|------------------------|-----------------------------------------|------------------|----------------|---------------|
-| 1.0.1  | 修复exit，改变配置文件命名        | 改变配置文件命名                                    | ✓                | -              | 1.0.6         |
+| 1.1.0  | 兼容新版chat tsugu         | 少了点配置                                   | ✓                | -              | 1.1.0         |
+| 1.0.1  | 修复exit，改变配置文件命名        | 改变配置文件命名                                | ✓                | -              | 1.0.6         |
 | 1.0.0  | 进入一个正式版本               | 完全改变                                    | ✓                | ✓              | 1.0.6         |
 | 0.0.14 | 修复help无响应              | -                                       | -                | -              | 0.5.7         |
 | 0.0.13 | 修复bug若干                | -                                       | -                | -              | -             |

@@ -12,7 +12,7 @@ if __name__ == "__main__":
             with open('tsugu_lgr_config.json', 'r') as f:
                 tsugu_lgr_config_dict = json.load(f)
         else:
-            logger.error('tsugu_lgr_config.json 不存在，请先配置 tsugu_lgr_config.json')
+            logger.error('tsugu_lgr_config.json 不存在，请先配置 tsugu_lgr_config【.json')
             sys.exit(0)
         if 'lagrange_uin' not in tsugu_lgr_config_dict or tsugu_lgr_config_dict['lagrange_uin'] == '':
             logger.error('请先配置 lagrange_uin')

@@ -18,13 +18,13 @@ class Config:
         self.lagrange_group_blacklist: List[str] = []
         """
         lagrange_group_blacklist 群黑名单
-        例: ['123456789', '987654321']
+        例: ["123456789", "987654321"]
         """
 
         self.lagrange_user_blacklist: List[str] = []
         """
         lagrange_user_blacklist 用户黑名单
-        例: ['123456789', '987654321']
+        例: ["123456789", "987654321"]
         """
 
         self.lagrange_debug: bool = True
@@ -85,32 +85,12 @@ class Config:
         默认为 True，即压缩返回数据。若不压缩返回数据，可将此项设置为 False。
         '''
 
-        self.tsugu_prefix: List[str] = ['/', '']
-        '''
-        命令前缀
-        最后一个参数如果不是空字符串，则只有在命令前缀符合时才会触发命令。
-        '''
-
-        self.tsugu_allow_gap_less: bool = True
+        self.tsugu_compact: bool = True
         '''
         是否允许命令与参数之间没有空格
         '''
 
-        self.tsugu_get_remote_user_data_max_retry: int = 3
-        '''
-        获取远程用户数据最大重试次数
-        '''
-
-        self.tsugu_token_name: str = "Tsugu"
-        '''
-        bandori station token
-        '''
-        self.tsugu_bandori_station_token: str = "ZtV4EX2K9Onb"
-        '''
-        bandori station token
-        '''
-
-        self.tsugu_ban_gacha_simulate_group_data: List = []
+        self.tsugu_disable_gacha_simulate_group_ids: List = []
         '''
         需要关闭模拟抽卡的群
         '''
