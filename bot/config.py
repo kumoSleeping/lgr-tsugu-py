@@ -84,13 +84,3 @@ class Config:
         是否压缩返回数据，压缩可减少返回数据大小。
         默认为 True，即压缩返回数据。若不压缩返回数据，可将此项设置为 False。
         '''
-
-        self.tsugu_compact: bool = True
-        '''
-        是否允许命令与参数之间没有空格
-        '''
-
-        self.tsugu_disable_gacha_simulate_group_ids: List = []
-        '''
-        需要关闭模拟抽卡的群
-        '''

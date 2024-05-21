@@ -10,8 +10,7 @@ from lagrange.client.events.group import GroupMessage
 from lagrange.client.events.friend import FriendMessage
 from lagrange.client.message.elems import At, Raw, Text, Quote
 
-import tsugu_async
-from tsugu_async import config as tsugu_config
+import tsugu
 from tsugu_api_async import settings as tsugu_api_config
 
 from config import Config
@@ -32,10 +31,6 @@ for key, value in tsugu_lgr_config_dict.items():
         attr_name = key.replace("tsugu_api_", "")
         if hasattr(tsugu_api_config, attr_name):
             setattr(tsugu_api_config, attr_name, value)
-    elif key.startswith("tsugu_"):
-        attr_name = key.replace("tsugu_", "")
-        if hasattr(tsugu_config, attr_name):
-            setattr(tsugu_config, attr_name, value)
 
 
 config_quote = tsugu_lgr_config_dict['lagrange_quote']
@@ -54,7 +49,7 @@ def redirect_logging(record):
     logger_opt.log(record.levelno, record.getMessage())
 
 
-if config_debug == 'True':
+if config_debug:
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger().handlers = [logging.Handler()]
     logging.getLogger().handlers[0].emit = redirect_logging
@@ -71,7 +66,7 @@ async def handle_friend_message(client: Client, event: FriendMessage):
             logger.warning(f'User {str(event.from_uin)} is in blacklist')
             return
 
-    response = await tsugu_async.handler(event.msg, str(event.from_uin), 'red', 'LgrFriend' + str(event.from_uin))
+    response = await tsugu.handler_async(event.msg, str(event.from_uin), 'red', 'LgrFriend' + str(event.from_uin))
     
     # 不发送消息
     if not response:
@@ -93,7 +88,7 @@ async def handle_group_message(client: Client, event: GroupMessage):
             logger.warning(f'Group {str(event.grp_id)} is in blacklist')
             return
 
-    response = await tsugu_async.handler(event.msg, str(event.uin), 'red', str(event.grp_id))
+    response = await tsugu.handler_async(event.msg, str(event.uin), 'red', str(event.grp_id))
 
     # 不发送消息
     if not response:
