@@ -37,6 +37,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install pyinstaller
           pip install tsugu
+          pip install tarina
           pip install git+https://github.com/LagrangeDev/lagrange-python@broken
           
       - name: Build executable
