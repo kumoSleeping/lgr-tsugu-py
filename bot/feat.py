@@ -9,9 +9,10 @@ from lagrange.client.client import Client
 from lagrange.client.events.group import GroupMessage
 from lagrange.client.events.friend import FriendMessage
 from lagrange.client.message.elems import At, Raw, Text, Quote
+import base64
 
-import tsugu
-from tsugu_api_async import settings as tsugu_api_config
+from tsugu import cmd_generator
+from tsugu_api_core import _settings as tsugu_api_config
 
 from config import Config
 
@@ -60,47 +61,90 @@ else:
 
 
 async def handle_friend_message(client: Client, event: FriendMessage):
-    logger.info(f'User_{str(event.from_uin)}: {event.msg}')
-    if user_blacklist:
-        if str(event.from_uin) in user_blacklist:
-            logger.warning(f'User {str(event.from_uin)} is in blacklist')
+
+    async def _send(msg):
+        msg_list = []
+
+        # 如果是字符串，直接作为单条文本发送（避免把字符串拆成字符列表）
+        if isinstance(msg, str):
+            msg_list.append(Text(msg))
+            # 在私聊中不使用 Quote.build，因为 FriendMessage 没有 uid 属性
+            await client.send_friend_msg(msg_list, event.from_uid)
             return
 
-    response = await tsugu.handler_async(event.msg, str(event.from_uin), 'red', 'LgrFriend' + str(event.from_uin))
-    
+        # 如果是单个 dict，包装成列表以便统一处理
+        items = [msg] if isinstance(msg, dict) else msg
+
+        for item in items:
+            # 支持多种返回格式：str, bytes, 或 {'type': 'string'/'base64', 'string': ...}
+            if isinstance(item, str):
+                msg_list.append(Text(item))
+            elif isinstance(item, (bytes, bytearray)):
+                img = await client.upload_friend_image(BytesIO(item), event.from_uid)
+                msg_list.append(img)
+            elif isinstance(item, dict):
+                t = item.get('type')
+                s = item.get('string')
+                if t == 'string':
+                    msg_list.append(Text(s))
+                elif t == 'base64' and s:
+                    raw = base64.b64decode(s)
+                    img = await client.upload_friend_image(BytesIO(raw), event.from_uid)
+                    msg_list.append(img)
+                    
+        await client.send_friend_msg(msg_list, event.from_uid)
+
+    # logger.info(f'User_{str(event.from_uin)}: {event.msg}')
+    if user_blacklist:
+        if str(event.from_uin) in user_blacklist:
+            # logger.warning(f'User {str(event.from_uin)} is in blacklist')
+            return
+
+    await cmd_generator(message=event.msg, user_id=str(event.from_uin), send_func=_send)
     # 不发送消息
-    if not response:
-         return
-
-    msg_list = []
-    for item in response:
-        # 处理文本类型的消息
-        msg_list.append(Text(item)) if isinstance(item, str) else None
-        msg_list.append(await client.upload_friend_image(BytesIO(item), event.from_uid)) if isinstance(item, bytes) else None
-
-    await client.send_friend_msg(msg_list, event.from_uid)
 
 
 async def handle_group_message(client: Client, event: GroupMessage):
-    logger.info(f'[ {event.grp_name} ] {event.nickname}: {event.msg}')
-    if group_blacklist:
-        if str(event.grp_id) in group_blacklist:
-            logger.warning(f'Group {str(event.grp_id)} is in blacklist')
+    
+    async def _send(msg):
+        msg_list = []
+
+        # 如果是字符串，直接作为单条文本发送（避免把字符串拆成字符列表）
+        if isinstance(msg, str):
+            msg_list.append(Text(msg))
+            if config_quote:
+                msg_list.insert(0, Quote.build(event))
+            await client.send_grp_msg(msg_list, event.grp_id)
             return
 
-    response = await tsugu.handler_async(event.msg, str(event.uin), 'red', str(event.grp_id))
+        # 如果是单个 dict，包装成列表以便统一处理
+        items = [msg] if isinstance(msg, dict) else msg
 
-    # 不发送消息
-    if not response:
-        return
+        for item in items:
+            # 支持多种返回格式：str, bytes, 或 {'type': 'string'/'base64', 'string': ...}
+            if isinstance(item, str):
+                msg_list.append(Text(item))
+            elif isinstance(item, (bytes, bytearray)):
+                img = await client.upload_grp_image(BytesIO(item), event.grp_id)
+                msg_list.append(img)
+            elif isinstance(item, dict):
+                t = item.get('type')
+                s = item.get('string')
+                if t == 'string':
+                    msg_list.append(Text(s))
+                elif t == 'base64' and s:
+                    raw = base64.b64decode(s)
+                    img = await client.upload_grp_image(BytesIO(raw), event.grp_id)
+                    msg_list.append(img)
 
-    msg_list = []
-    for item in response:
-        # 处理文本类型的消息
-        msg_list.append(Text(item)) if isinstance(item, str) else None
-        msg_list.append(await client.upload_grp_image(BytesIO(item), event.grp_id)) if isinstance(item, bytes) else None
+        if config_quote:
+            msg_list.insert(0, Quote.build(event))
+        # logger.warning(f'send_group_message: {msg_list}')
+        await client.send_grp_msg(msg_list, event.grp_id)
 
-    if config_quote == 'True':
-        msg_list.insert(0, Quote.build(event))
+    if group_blacklist:
+        if str(event.grp_id) in group_blacklist:
+            # logger.warning(f'Group {str(event.grp_id)} is in blacklist')
+            return
 
-    await client.send_grp_msg(msg_list, event.grp_id)
+    await cmd_generator(message=event.msg, user_id=str(event.uin), send_func=_send)
