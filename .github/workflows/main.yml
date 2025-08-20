@@ -58,7 +58,7 @@ jobs:
       
       - name: Build executable
         run: |
-          python -m nuitka --standalone --onefile --output-dir=./dist bot/__main__.py
+          python -m nuitka --standalone --onefile --assume-yes-for-downloads --output-dir=./dist bot/__main__.py
       
       
       
