@@ -106,20 +106,40 @@ jobs:
       - name: Prepare executables (add version to filename)
         run: |
           set -e
-          VERSION=${{ env.VERSION }}
-          find artifacts -type f -maxdepth 3 -name 'tsugu-*' -print
-          for f in $(find artifacts -type f -name 'tsugu-*'); do
-            base=$(basename "$f")
-            ext=""
-            case "$base" in
-              *.exe) ext=".exe" ; platform=${base%.exe}; platform=${platform#tsugu-} ;;
-              *) platform=${base#tsugu-} ;;
-            esac
-            new="artifacts/tsugu-${platform}-${VERSION}${ext}"
-            mv "$f" "$new"
-            echo "Renamed $f -> $new"
+          VERSION="${{ env.VERSION }}"
+          echo "Processing artifacts for version: $VERSION"
+          
+          # Find and rename executables
+          find artifacts -type f -name 'tsugu-*' -print0 | while IFS= read -r -d '' f; do
+            if [ -f "$f" ]; then
+              dir=$(dirname "$f")
+              base=$(basename "$f")
+              echo "Processing: $base"
+              
+              # Extract platform and extension
+              case "$base" in
+                tsugu-windows-amd64.exe)
+                  new="$dir/tsugu-windows-amd64-$VERSION.exe"
+                  ;;
+                tsugu-linux-amd64)
+                  new="$dir/tsugu-linux-amd64-$VERSION"
+                  ;;
+                tsugu-macos-arm64)
+                  new="$dir/tsugu-macos-arm64-$VERSION"
+                  ;;
+                *)
+                  echo "Unknown file: $base, skipping"
+                  continue
+                  ;;
+              esac
+              
+              mv "$f" "$new"
+              echo "Renamed: $base -> $(basename "$new")"
+            fi
           done
-          ls -l artifacts || true
+          
+          echo "Final artifacts:"
+          find artifacts -type f -name 'tsugu-*' | sort
 
       - name: Create GitHub Release and upload assets
         uses: softprops/action-gh-release@v1
