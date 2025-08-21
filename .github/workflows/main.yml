@@ -37,7 +37,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
@@ -103,50 +103,14 @@ jobs:
         with:
           path: artifacts
 
-      - name: Debug artifacts structure
+      - name: Prepare executables for release
         run: |
-          echo "=== Artifacts directory structure ==="
-          find artifacts -type f -ls || true
-          echo "=== Looking for tsugu files ==="
-          find artifacts -name '*tsugu*' -type f || true
-
-      - name: Prepare executables (add version to filename)
-        run: |
-          set -e
           VERSION="${{ env.VERSION }}"
-          echo "Processing artifacts for version: $VERSION"
-          
-          # Find and rename executables in subdirectories
-          find artifacts -name 'tsugu-*' -type f -print0 | while IFS= read -r -d '' f; do
-            if [ -f "$f" ]; then
-              dir=$(dirname "$f")
-              base=$(basename "$f")
-              echo "Processing: $f (base: $base)"
-              
-              # Extract platform and extension, move to artifacts root
-              case "$base" in
-                tsugu-windows-amd64.exe)
-                  new="artifacts/tsugu-windows-amd64-$VERSION.exe"
-                  ;;
-                tsugu-linux-amd64)
-                  new="artifacts/tsugu-linux-amd64-$VERSION"
-                  ;;
-                tsugu-macos-arm64)
-                  new="artifacts/tsugu-macos-arm64-$VERSION"
-                  ;;
-                *)
-                  echo "Unknown file: $base, skipping"
-                  continue
-                  ;;
-              esac
-              
-              mv "$f" "$new"
-              echo "Renamed: $f -> $new"
-            fi
+          # Move all executables to artifacts root and add version
+          find artifacts -name 'tsugu-*' -type f -exec basename {} \; | while read filename; do
+            find artifacts -name "$filename" -type f -exec mv {} "artifacts/${filename%.*}-$VERSION${filename##*.}" \;
           done
-          
-          echo "=== Final artifacts ready for release ==="
-          find artifacts -maxdepth 1 -name 'tsugu-*' -type f -ls || true
+          ls -la artifacts/tsugu-*
 
       - name: Create GitHub Release and upload assets
         uses: softprops/action-gh-release@v1
