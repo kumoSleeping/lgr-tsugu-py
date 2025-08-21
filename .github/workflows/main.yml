@@ -106,10 +106,24 @@ jobs:
       - name: Prepare executables for release
         run: |
           VERSION="${{ env.VERSION }}"
-          # Move all executables to artifacts root and add version
-          find artifacts -name 'tsugu-*' -type f -exec basename {} \; | while read filename; do
-            find artifacts -name "$filename" -type f -exec mv {} "artifacts/${filename%.*}-$VERSION${filename##*.}" \;
+          # Rename executables with version
+          for f in artifacts/*/tsugu-*; do
+            if [ -f "$f" ]; then
+              base=$(basename "$f")
+              case "$base" in
+                tsugu-windows-amd64.exe)
+                  mv "$f" "artifacts/tsugu-windows-amd64-$VERSION.exe"
+                  ;;
+                tsugu-linux-amd64)
+                  mv "$f" "artifacts/tsugu-linux-amd64-$VERSION"
+                  ;;
+                tsugu-macos-arm64)
+                  mv "$f" "artifacts/tsugu-macos-arm64-$VERSION"
+                  ;;
+              esac
+            fi
           done
+          echo "Final files:"
           ls -la artifacts/tsugu-*
 
       - name: Create GitHub Release and upload assets
