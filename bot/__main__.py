@@ -4,6 +4,17 @@ import os
 import json
 from loguru import logger
 import sys
+import ssl
+import certifi
+
+# 设置 SSL 证书路径
+os.environ['SSL_CERT_FILE'] = certifi.where()
+os.environ['REQUESTS_CA_BUNDLE'] = certifi.where()
+
+# 设置默认 SSL 上下文
+ssl_context = ssl.create_default_context(cafile=certifi.where())
+ssl_context.check_hostname = False
+ssl_context.verify_mode = ssl.CERT_NONE
 
 
 if __name__ == "__main__":
