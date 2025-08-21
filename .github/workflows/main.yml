@@ -68,16 +68,16 @@ jobs:
       - name: Rename artifact (Windows)
         if: runner.os == 'Windows'
         run: |
-          $src = "dist/tsugu.exe"
-          if (Test-Path $src) { Move-Item $src "dist/tsugu-${{ matrix.name }}.exe" } else { Write-Host "Source exe not found"; Get-ChildItem dist }
+          echo "Files in dist after build:"
           Get-ChildItem dist
+          # File should already be named correctly from PyInstaller --name option
 
       - name: Rename artifact (Unix)
         if: runner.os != 'Windows'
         run: |
-          set -e
-          if [ -f dist/tsugu ]; then mv dist/tsugu dist/tsugu-${{ matrix.name }}; fi
-          ls -l dist || true
+          echo "Files in dist after build:"
+          ls -la dist || true
+          # File should already be named correctly from PyInstaller --name option
 
       - name: Upload executable artifact
         uses: actions/upload-artifact@v4
