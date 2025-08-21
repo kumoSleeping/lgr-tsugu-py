@@ -44,6 +44,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install pyinstaller
           pip install certifi
+          pip install httpx
           pip install tsugu
           pip install tarina
           pip install "git+https://github.com/LagrangeDev/lagrange-python@broken"
@@ -72,6 +73,9 @@ jobs:
             --hidden-import=certifi \
             --hidden-import=ssl \
             --hidden-import=_ssl \
+            --hidden-import=httpx \
+            --hidden-import=httpx._client \
+            --hidden-import=httpx._config \
             __main__.py
           echo "PyInstaller completed, checking output:"
           ls -la dist/ || echo "dist directory not found"
