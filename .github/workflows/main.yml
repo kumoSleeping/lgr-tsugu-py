@@ -85,6 +85,11 @@ jobs:
             dist/tsugu-${{ matrix.name }}*
           if-no-files-found: error
           retention-days: 1
+
+  create_release:
+    name: Create Release and upload artifacts
+    needs: build
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -101,20 +106,20 @@ jobs:
       - name: Prepare executables (add version to filename)
         run: |
           set -e
-            VERSION=${{ env.VERSION }}
-            find artifacts -type f -maxdepth 3 -name 'tsugu-*' -print
-            for f in $(find artifacts -type f -name 'tsugu-*'); do
-              base=$(basename "$f")
-              ext=""
-              case "$base" in
-                *.exe) ext=".exe" ; platform=${base%.exe}; platform=${platform#tsugu-} ;;
-                *) platform=${base#tsugu-} ;;
-              esac
-              new="artifacts/tsugu-${platform}-${VERSION}${ext}"
-              mv "$f" "$new"
-              echo "Renamed $f -> $new"
-            done
-            ls -l artifacts || true
+          VERSION=${{ env.VERSION }}
+          find artifacts -type f -maxdepth 3 -name 'tsugu-*' -print
+          for f in $(find artifacts -type f -name 'tsugu-*'); do
+            base=$(basename "$f")
+            ext=""
+            case "$base" in
+              *.exe) ext=".exe" ; platform=${base%.exe}; platform=${platform#tsugu-} ;;
+              *) platform=${base#tsugu-} ;;
+            esac
+            new="artifacts/tsugu-${platform}-${VERSION}${ext}"
+            mv "$f" "$new"
+            echo "Renamed $f -> $new"
+          done
+          ls -l artifacts || true
 
       - name: Create GitHub Release and upload assets
         uses: softprops/action-gh-release@v1
@@ -123,5 +128,5 @@ jobs:
           name: Release ${{ env.VERSION }}
           draft: false
           prerelease: false
-            files: artifacts/tsugu-*-${{ env.VERSION }}*
+          files: artifacts/tsugu-*-${{ env.VERSION }}*
           token: ${{ secrets.GITHUB_TOKEN }}
