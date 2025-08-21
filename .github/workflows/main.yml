@@ -31,10 +31,11 @@ jobs:
     env:
       PYTHONUTF8: 1
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
@@ -59,58 +60,61 @@ jobs:
         with:
           name: ${{ matrix.artifact }}
           path: dist
+          retention-days: 1
 
   create_release:
     name: Create Release and upload artifacts
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set VERSION
         run: |
           echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
 
-      - name: Download windows artifact
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          name: dist-windows-amd64
-          path: dist-windows-amd64
-
-      - name: Download linux artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: dist-linux-amd64
-          path: dist-linux-amd64
-
-      - name: Download macos artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: dist-macos-arm64
-          path: dist-macos-arm64
+          path: artifacts
 
       - name: Package artifacts for release
         run: |
           set -e
           VERSION=${{ env.VERSION }}
-          for a in dist-windows-amd64 dist-linux-amd64 dist-macos-arm64; do
-            if [ -d "$a" ]; then
-              zip -r "${a}-${VERSION}.zip" "$a"
-            else
-              echo "Warning: artifact folder $a not found"
+          cd artifacts
+          
+          # Package each artifact
+          for artifact_dir in */; do
+            if [ -d "$artifact_dir" ]; then
+              artifact_name=$(basename "$artifact_dir")
+              echo "Processing artifact: $artifact_name"
+              cd "$artifact_dir"
+              if [ -f "__main__.exe" ]; then
+                # Windows executable
+                zip "../${artifact_name}-${VERSION}.zip" "__main__.exe"
+              elif [ -f "__main__" ]; then
+                # Linux/Mac executable
+                zip "../${artifact_name}-${VERSION}.zip" "__main__"
+              else
+                # Package entire directory if no single executable found
+                cd ..
+                zip -r "${artifact_name}-${VERSION}.zip" "$artifact_dir"
+                cd "$artifact_dir"
+              fi
+              cd ..
             fi
           done
+          
+          ls -la *.zip || echo "No zip files found"
 
       - name: Create GitHub Release and upload assets
-        uses: softprops/action-gh-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.VERSION }}
           name: Release ${{ env.VERSION }}
           draft: false
           prerelease: false
-          files: |
-            dist-windows-amd64-${{ env.VERSION }}.zip
-            dist-linux-amd64-${{ env.VERSION }}.zip
-            dist-macos-arm64-${{ env.VERSION }}.zip
+          files: artifacts/*.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
