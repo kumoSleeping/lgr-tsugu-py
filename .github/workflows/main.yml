@@ -50,10 +50,18 @@ jobs:
       - name: Build with PyInstaller
         run: ${{ matrix.build_cmd }}
 
-      - name: List dist output
+      - name: List dist output (Windows)
+        if: runner.os == 'Windows'
         run: |
-          echo "Contents of dist:"
+          echo "Contents of dist (Windows):"
+          if (Test-Path dist) { Get-ChildItem dist -Recurse | Format-List -Property FullName,Length } else { echo 'dist folder not found' }
+
+      - name: List dist output (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          echo "Contents of dist (Unix):"
           ls -la dist || true
+          find dist -maxdepth 2 -type f -print || true
 
       - name: Upload dist artifact
         uses: actions/upload-artifact@v4
