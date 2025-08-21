@@ -103,29 +103,36 @@ jobs:
         with:
           path: artifacts
 
+      - name: Debug artifacts structure
+        run: |
+          echo "=== Artifacts directory structure ==="
+          find artifacts -type f -ls || true
+          echo "=== Looking for tsugu files ==="
+          find artifacts -name '*tsugu*' -type f || true
+
       - name: Prepare executables (add version to filename)
         run: |
           set -e
           VERSION="${{ env.VERSION }}"
           echo "Processing artifacts for version: $VERSION"
           
-          # Find and rename executables
-          find artifacts -type f -name 'tsugu-*' -print0 | while IFS= read -r -d '' f; do
+          # Find and rename executables in subdirectories
+          find artifacts -name 'tsugu-*' -type f -print0 | while IFS= read -r -d '' f; do
             if [ -f "$f" ]; then
               dir=$(dirname "$f")
               base=$(basename "$f")
-              echo "Processing: $base"
+              echo "Processing: $f (base: $base)"
               
-              # Extract platform and extension
+              # Extract platform and extension, move to artifacts root
               case "$base" in
                 tsugu-windows-amd64.exe)
-                  new="$dir/tsugu-windows-amd64-$VERSION.exe"
+                  new="artifacts/tsugu-windows-amd64-$VERSION.exe"
                   ;;
                 tsugu-linux-amd64)
-                  new="$dir/tsugu-linux-amd64-$VERSION"
+                  new="artifacts/tsugu-linux-amd64-$VERSION"
                   ;;
                 tsugu-macos-arm64)
-                  new="$dir/tsugu-macos-arm64-$VERSION"
+                  new="artifacts/tsugu-macos-arm64-$VERSION"
                   ;;
                 *)
                   echo "Unknown file: $base, skipping"
@@ -134,12 +141,12 @@ jobs:
               esac
               
               mv "$f" "$new"
-              echo "Renamed: $base -> $(basename "$new")"
+              echo "Renamed: $f -> $new"
             fi
           done
           
-          echo "Final artifacts:"
-          find artifacts -type f -name 'tsugu-*' | sort
+          echo "=== Final artifacts ready for release ==="
+          find artifacts -maxdepth 1 -name 'tsugu-*' -type f -ls || true
 
       - name: Create GitHub Release and upload assets
         uses: softprops/action-gh-release@v1
