@@ -55,7 +55,15 @@ jobs:
           echo "Files in bot directory:"
           ls -la
           echo "Running PyInstaller..."
-          python -m PyInstaller --onefile --name tsugu-${{ matrix.name }} --collect-data tarina __main__.py
+          python -m PyInstaller --onefile --name tsugu-${{ matrix.name }} \
+            --collect-data tarina \
+            --collect-submodules tarina \
+            --collect-data nepattern \
+            --collect-submodules nepattern \
+            --hidden-import=tarina.lang \
+            --hidden-import=tarina.i18n \
+            --hidden-import=nepattern.i18n \
+            __main__.py
           echo "PyInstaller completed, checking output:"
           ls -la dist/ || echo "dist directory not found"
 
