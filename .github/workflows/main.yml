@@ -50,33 +50,39 @@ jobs:
       - name: Build executable
         run: |
           cd bot
+          echo "Current directory: $(pwd)"
+          echo "Files in bot directory:"
+          ls -la
+          echo "Running PyInstaller..."
           python -m PyInstaller --onefile --name tsugu-${{ matrix.name }} --collect-data tarina __main__.py
+          echo "PyInstaller completed, checking output:"
+          ls -la dist/ || echo "dist directory not found"
 
       - name: List dist output (Windows)
         if: runner.os == 'Windows'
         run: |
           echo "Contents of dist (Windows):"
-          if (Test-Path dist) { Get-ChildItem dist -Recurse | Format-List -Property FullName,Length } else { echo 'dist folder not found' }
+          if (Test-Path bot/dist) { Get-ChildItem bot/dist -Recurse | Format-List -Property FullName,Length } else { echo 'bot/dist folder not found' }
 
       - name: List dist output (Unix)
         if: runner.os != 'Windows'
         run: |
           echo "Contents of dist (Unix):"
-          ls -la dist || true
-          find dist -maxdepth 2 -type f -print || true
+          ls -la bot/dist || echo "bot/dist not found"
+          find bot/dist -maxdepth 2 -type f -print || echo "No files found in bot/dist"
 
       - name: Rename artifact (Windows)
         if: runner.os == 'Windows'
         run: |
-          echo "Files in dist after build:"
-          Get-ChildItem dist
+          echo "Files in bot/dist after build:"
+          Get-ChildItem bot/dist || echo "bot/dist not found"
           # File should already be named correctly from PyInstaller --name option
 
       - name: Rename artifact (Unix)
         if: runner.os != 'Windows'
         run: |
-          echo "Files in dist after build:"
-          ls -la dist || true
+          echo "Files in bot/dist after build:"
+          ls -la bot/dist || echo "bot/dist not found"
           # File should already be named correctly from PyInstaller --name option
 
       - name: Upload executable artifact
@@ -84,7 +90,7 @@ jobs:
         with:
           name: ${{ matrix.artifact }}
           path: |
-            dist/tsugu-${{ matrix.name }}*
+            bot/dist/tsugu-${{ matrix.name }}*
           if-no-files-found: error
           retention-days: 1
 
