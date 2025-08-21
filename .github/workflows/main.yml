@@ -17,16 +17,16 @@ jobs:
         include:
           - name: windows-amd64
             runner: windows-latest
-            artifact: dist-windows-amd64
-            build_cmd: "python -m PyInstaller --onefile bot/__main__.py --icon=./ico.ico --distpath ./dist --workpath ./build"
+            artifact: windows-amd64
+            build_cmd: "python -m PyInstaller --onefile --name tsugu bot/__main__.py --icon=./ico.ico --distpath ./dist --workpath ./build"
           - name: linux-amd64
             runner: ubuntu-latest
-            artifact: dist-linux-amd64
-            build_cmd: "python -m PyInstaller --onefile bot/__main__.py --distpath ./dist --workpath ./build"
+            artifact: linux-amd64
+            build_cmd: "python -m PyInstaller --onefile --name tsugu bot/__main__.py --distpath ./dist --workpath ./build"
           - name: macos-arm64
             runner: macos-latest
-            artifact: dist-macos-arm64
-            build_cmd: "python -m PyInstaller --onefile bot/__main__.py --icon=./ico.ico --distpath ./dist --workpath ./build"
+            artifact: macos-arm64
+            build_cmd: "python -m PyInstaller --onefile --name tsugu bot/__main__.py --icon=./ico.ico --distpath ./dist --workpath ./build"
     runs-on: ${{ matrix.runner }}
     env:
       PYTHONUTF8: 1
@@ -63,17 +63,28 @@ jobs:
           ls -la dist || true
           find dist -maxdepth 2 -type f -print || true
 
-      - name: Upload dist artifact
+      - name: Rename artifact (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          $src = "dist/tsugu.exe"
+          if (Test-Path $src) { Move-Item $src "dist/tsugu-${{ matrix.name }}.exe" } else { Write-Host "Source exe not found"; Get-ChildItem dist }
+          Get-ChildItem dist
+
+      - name: Rename artifact (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          set -e
+          if [ -f dist/tsugu ]; then mv dist/tsugu dist/tsugu-${{ matrix.name }}; fi
+          ls -l dist || true
+
+      - name: Upload executable artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
-          path: dist
+          path: |
+            dist/tsugu-${{ matrix.name }}*
+          if-no-files-found: error
           retention-days: 1
-
-  create_release:
-    name: Create Release and upload artifacts
-    needs: build
-    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -87,35 +98,23 @@ jobs:
         with:
           path: artifacts
 
-      - name: Package artifacts for release
+      - name: Prepare executables (add version to filename)
         run: |
           set -e
-          VERSION=${{ env.VERSION }}
-          cd artifacts
-          
-          # Package each artifact
-          for artifact_dir in */; do
-            if [ -d "$artifact_dir" ]; then
-              artifact_name=$(basename "$artifact_dir")
-              echo "Processing artifact: $artifact_name"
-              cd "$artifact_dir"
-              if [ -f "__main__.exe" ]; then
-                # Windows executable
-                zip "../${artifact_name}-${VERSION}.zip" "__main__.exe"
-              elif [ -f "__main__" ]; then
-                # Linux/Mac executable
-                zip "../${artifact_name}-${VERSION}.zip" "__main__"
-              else
-                # Package entire directory if no single executable found
-                cd ..
-                zip -r "${artifact_name}-${VERSION}.zip" "$artifact_dir"
-                cd "$artifact_dir"
-              fi
-              cd ..
-            fi
-          done
-          
-          ls -la *.zip || echo "No zip files found"
+            VERSION=${{ env.VERSION }}
+            find artifacts -type f -maxdepth 3 -name 'tsugu-*' -print
+            for f in $(find artifacts -type f -name 'tsugu-*'); do
+              base=$(basename "$f")
+              ext=""
+              case "$base" in
+                *.exe) ext=".exe" ; platform=${base%.exe}; platform=${platform#tsugu-} ;;
+                *) platform=${base#tsugu-} ;;
+              esac
+              new="artifacts/tsugu-${platform}-${VERSION}${ext}"
+              mv "$f" "$new"
+              echo "Renamed $f -> $new"
+            done
+            ls -l artifacts || true
 
       - name: Create GitHub Release and upload assets
         uses: softprops/action-gh-release@v1
@@ -124,5 +123,5 @@ jobs:
           name: Release ${{ env.VERSION }}
           draft: false
           prerelease: false
-          files: artifacts/*.zip
+            files: artifacts/tsugu-*-${{ env.VERSION }}*
           token: ${{ secrets.GITHUB_TOKEN }}
