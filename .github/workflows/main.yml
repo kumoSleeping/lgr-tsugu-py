@@ -48,6 +48,7 @@ jobs:
           pip install git+https://github.com/LagrangeDev/lagrange-python@broken
 
       - name: Build executable
+        shell: bash
         run: |
           cd bot
           echo "Current directory: $(pwd)"
