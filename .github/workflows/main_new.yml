@@ -1,0 +1,143 @@
+name: Build and Upload Executable (PyInstaller matrix)
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'version.txt' ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.name }}
+    strategy:
+      matrix:
+        include:
+          - name: windows-amd64
+            runner: windows-latest
+            artifact: dist-windows-amd64
+            build_cmd: "python -m PyInstaller --onefile bot/__main__.py --icon=./ico.ico --distpath ./dist --workpath ./build"
+          - name: linux-amd64
+            runner: ubuntu-latest
+            artifact: dist-linux-amd64
+            build_cmd: "python -m PyInstaller --onefile bot/__main__.py --distpath ./dist --workpath ./build"
+          - name: macos-arm64
+            runner: macos-latest
+            artifact: dist-macos-arm64
+            build_cmd: "python -m PyInstaller --onefile bot/__main__.py --icon=./ico.ico --distpath ./dist --workpath ./build"
+    runs-on: ${{ matrix.runner }}
+    env:
+      PYTHONUTF8: 1
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install tsugu
+          pip install tarina
+          pip install git+https://github.com/LagrangeDev/lagrange-python@broken
+
+      - name: Build with PyInstaller
+        run: ${{ matrix.build_cmd }}
+
+      - name: List dist output
+        run: |
+          echo "Contents of dist:"
+          ls -la dist || true
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist
+
+  create_release:
+    name: Create Release and upload artifacts
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set VERSION
+        run: |
+          echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
+
+      - name: Download windows artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: dist-windows-amd64
+          path: dist-windows-amd64
+
+      - name: Download linux artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: dist-linux-amd64
+          path: dist-linux-amd64
+
+      - name: Download macos artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: dist-macos-arm64
+          path: dist-macos-arm64
+
+      - name: Package artifacts for release
+        run: |
+          set -e
+          VERSION=${{ env.VERSION }}
+          for a in dist-windows-amd64 dist-linux-amd64 dist-macos-arm64; do
+            if [ -d "$a" ]; then
+              zip -r "${a}-${VERSION}.zip" "$a"
+            else
+              echo "Warning: artifact folder $a not found"
+            fi
+          done
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.VERSION }}
+          release_name: Release ${{ env.VERSION }}
+          draft: false
+          prerelease: false
+
+      - name: Upload windows release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist-windows-amd64-${{ env.VERSION }}.zip
+          asset_name: tsugu-windows-amd64-${{ env.VERSION }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload linux release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist-linux-amd64-${{ env.VERSION }}.zip
+          asset_name: tsugu-linux-amd64-${{ env.VERSION }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload macos release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist-macos-arm64-${{ env.VERSION }}.zip
+          asset_name: tsugu-macos-arm64-${{ env.VERSION }}.zip
+          asset_content_type: application/zip
