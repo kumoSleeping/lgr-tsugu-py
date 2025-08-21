@@ -1,34 +1,16 @@
 
 <h1 align="center"> Lagrange Tsugu Python 
-<img src="./logo.jpg" width="24" height="24" alt="nina"/> 
+<img src="./logo.jpg" width="50" height="50" alt="nina"/> 
 </h1>
 
 
 
-## 快速开始
+## 📦 快速开始
 
-任选下方的一种方式即可。
+目前支持 macOS_Arm64, Windows_amd64, Linux_amd64 三种主流平台的预编译版本，其他平台请使用 Python 构建方式。
+下载 Release 中的 对应的版本 , 给予足够的权限后运行, 跟随下方 "扫码登陆" 部分指引完成部署.
 
-- Windows exe 程序  
-    用户可以下载 Release 中的 exe 文件, 双击运行后跟随下方 "扫码登陆" 部分指引完成部署.
-
-
-- Python 构建 
-    ```shell
-    # 已安装 git
-    git clone git@github.com:kumoSleeping/lgr-tsugu-py.git
-
-    # python 版本推荐 3.10+
-    pip install tsugu
-    pip install git+https://github.com/LagrangeDev/lagrange-python@broken
-
-    cd lgr-tsugu-py
-    python bot
-    # python3 bot
-    ```
-    > 如果未安装git也可以使用下载本项目和 lagrange-python 的 zip 包的方式构建, 但长期使用更新较为麻烦。
-
-## 扫码登陆
+## 📱 扫码登陆
 
 完成上面的操作后会生成配置文件，使用文本编辑器打开 `tsugu_lgr_config.json` 文件，修改配置。
 
@@ -37,8 +19,6 @@
 
 上方两个配置项必填，其他配置项可根据需求修改。 
 然后运行项目，同目录下会生成二维码图片，打开后使用 BOT 账号扫码登陆即可。
-
-
 
 ## 🤔 常见问题
 
@@ -54,6 +34,18 @@
 
 > 如有疑问可以加入 BanG Dream Bot 相关开发群 666808414 友好交流，如果您不知道什么是 BanGDream，仔细考虑您是否要加群。
 
+## 从 Python 构建 
+    ```shell
+    # 已安装 git
+    git clone git@github.com:kumoSleeping/lgr-tsugu-py.git
+    pip install tsugu
+    pip install git+https://github.com/LagrangeDev/lagrange-python@broken
+
+    cd lgr-tsugu-py
+    python bot
+    # python3 bot
+    ```
+    > 如果未安装git也可以使用下载本项目和 lagrange-python 的 zip 包的方式构建, 但长期使用更新较为麻烦。
 
 ## 📖 项目依赖
 
