@@ -50,7 +50,7 @@ jobs:
       - name: Build executable
         run: |
           cd bot
-          python -m PyInstaller --onefile --name tsugu-${{ matrix.platform }} --collect-data tarina __main__.py
+          python -m PyInstaller --onefile --name tsugu-${{ matrix.name }} --collect-data tarina __main__.py
 
       - name: List dist output (Windows)
         if: runner.os == 'Windows'
